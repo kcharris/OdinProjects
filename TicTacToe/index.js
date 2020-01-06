@@ -22,26 +22,26 @@ const gameBoard = function(){
   }
   const readBoard = () => board;
   const checkStatus = function() {  //returns 0 for nothing 1 for player1 2 for player2 and 3 for tie
-    let arr = readBoard
+    let str = readBoard().join("")
     let p1 = player1Piece
     let p2 = player2Piece
-    const drawChecker = function(arr){
-      if (/[1-9]/.test(arr.toString())){
-        return true
+    const drawChecker = function(str){
+      if (/[1-9]+/.test(str)){
+        return false
       }
-      else false
+      else return true
     }
     const winChecker = function(p){
       const verticalCheck = function(y){ //meant to take 0 1 2 which are indexes of bottom row
-        return (arr[y] + arr[y + 3] + arr[y + 6])
+        return (str[y] + str[y + 3] + str[y + 6])
       }
       let end = false
       switch (p + p + p){
-        case arr.slice(0,3):
+        case str.slice(0,3):
           end = true
-        case arr.slice(3,6):
+        case str.slice(3,6):
           end = true
-        case arr.slice(6,9):
+        case str.slice(6,9):
           end = true
         case verticalCheck(0):
           end = true
@@ -49,9 +49,9 @@ const gameBoard = function(){
           end = true
         case verticalCheck(2):
           end = true
-        case (arr[0] + arr[4] + arr[8]):
+        case (str[0] + str[4] + str[8]):
           end = true
-        case (arr[2] + arr[4] + arr[6]):
+        case (str[2] + str[4] + str[6]):
           end = true
       }
       return end
@@ -62,10 +62,10 @@ const gameBoard = function(){
     else if (winChecker(p2)){
       return 2
     }
-    else if (drawChecker()){
+    else if (drawChecker(str)){
       return 3
     }
-    else 0
+    else return 0
   }
   return {playMove,boardReset,readBoard, checkStatus}
 }();
@@ -82,22 +82,38 @@ player2 = Player('player2')
 
 const displayController = function(){
   let renderGame = function(){
+    if (gameBoard.checkStatus()){
+      if (gameBoard.checkStatus() == 1){
+        let div = document.getElementById('gameBoard')
+        player1.plusScore()
+      }
+      else if (gameBoard.checkStatus() == 2){
+        let div = document.getElementById('gameBoard')
+        player2.plusScore()
+      }
+      
+      else if (gameBoard.checkStatus() == 3){
+        let div = document.getElementById('gameBoard')
+      }
+      gameBoard.boardReset()
+    }
     let player = function(player){
       div = document.getElementById(player.id)
       div.innerHTML = player.name + ': ' + player.readScore()
     }
-    player(player1)
-    player(player2)
     let board = function(gameBoard){
-      nodes = document.querySelectorAll("#gameBoard input")
+      let nodes = document.querySelectorAll("#gameBoard input")
       let b = gameBoard.readBoard()
       for(let i = 0; i < 9; i++){
         nodes[i].setAttribute('value', b[i])
       }    
-    }(gameBoard)    
+    }(gameBoard)
+    player(player1)
+    player(player2)
   }
   createBoard = function(){ //Buttons have logic that call renderGame
     div = document.getElementById("gameBoard")
+    div.innerHTML = ' '
     for(let i = 1; i < 10; i ++){
       let btn = document.createElement('input')
       btn.setAttribute('value', i)

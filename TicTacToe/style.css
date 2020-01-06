@@ -1,6 +1,6 @@
 #gameBoard {
   display : grid;
   grid-template-columns: 1fr 1fr 1fr;
-  width: 100px;
-  height: 100px;
+  width: 200px;
+  height: 200px;
 }
