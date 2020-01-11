@@ -77,41 +77,71 @@ const Player = function(str){
   const readScore = () => {return score}
   return {name, plusScore, readScore, id}
 }
-player1 = Player('player1')
-player2 = Player('player2')
+const player1 = Player('player1')
+const player2 = Player('player2')
 
 const displayController = function(){
+  let freezeGame = false
   let renderGame = function(){
-    if (gameBoard.checkStatus()){
-      if (gameBoard.checkStatus() == 1){
-        let div = document.getElementById('gameBoard')
-        player1.plusScore()
+    if (!freezeGame){
+      let board = function(gameBoard){
+        let nodes = document.querySelectorAll("#gameBoard input")
+        let b = gameBoard.readBoard()
+        for(let i = 0; i < 9; i++){
+          nodes[i].setAttribute('value', b[i])
+        }    
+      }(gameBoard)
+      if (gameBoard.checkStatus()){
+        freezeGame = true
+        if (gameBoard.checkStatus() == 1){
+          let div = document.querySelector('.gameMessage')
+          div.innerHTML = `${player1.name} wins!`
+          player1.plusScore()
+        }
+        else if (gameBoard.checkStatus() == 2){
+          let div = document.querySelector('.gameMessage')
+          div.innerHTML = `${player2.name} wins!`
+          player2.plusScore()
+        }
+        
+        else if (gameBoard.checkStatus() == 3){
+          let div = document.querySelector('.gameMessage')
+          div.innerHTML = `It's a tie.`
+        }
       }
-      else if (gameBoard.checkStatus() == 2){
-        let div = document.getElementById('gameBoard')
-        player2.plusScore()
-      }
-      
-      else if (gameBoard.checkStatus() == 3){
-        let div = document.getElementById('gameBoard')
-      }
-      gameBoard.boardReset()
+    }
+    let changeName = function(player){
+      let btn = document.createElement('input')
+      btn.setAttribute('type', 'button')
+      btn.setAttribute('value', 'ChangeName')
+      btn.addEventListener('click', () => {
+        let playerDiv = document.getElementById(player.id)
+        playerDiv.innerHTML = ""
+        let inputText = document.createElement('input')
+        inputText.setAttribute('type', 'text')
+        inputText.setAttribute('class', `${player.id}Change`)
+        let inputBtn = document.createElement('input')
+        inputBtn.setAttribute('type', 'button')
+        inputBtn.setAttribute('value', 'Submit')
+        inputBtn.addEventListener('click', () => {
+          player.name = document.querySelector(`.${player.id}Change`).value
+          playerDiv.innerHTML = player.name + ': ' + player.readScore()
+          playerDiv.append(changeName(player))
+        })
+        playerDiv.append(inputText)
+        playerDiv.append(inputBtn)
+      })
+      return btn
     }
     let player = function(player){
       div = document.getElementById(player.id)
       div.innerHTML = player.name + ': ' + player.readScore()
+      div.append(changeName(player))
     }
-    let board = function(gameBoard){
-      let nodes = document.querySelectorAll("#gameBoard input")
-      let b = gameBoard.readBoard()
-      for(let i = 0; i < 9; i++){
-        nodes[i].setAttribute('value', b[i])
-      }    
-    }(gameBoard)
     player(player1)
     player(player2)
   }
-  createBoard = function(){ //Buttons have logic that call renderGame
+  createBoard = function(){ //Buttons have logic that calls renderGame
     div = document.getElementById("gameBoard")
     div.innerHTML = ' '
     for(let i = 1; i < 10; i ++){
@@ -133,6 +163,8 @@ const displayController = function(){
     inputBtn.setAttribute('value','RESET')
     inputBtn.addEventListener('click', () => {
       gameBoard.boardReset()
+      freezeGame = false
+      document.querySelector('.gameMessage').innerHTML = ' '
       renderGame()})
     resetBtn.append(inputBtn)
   }()
